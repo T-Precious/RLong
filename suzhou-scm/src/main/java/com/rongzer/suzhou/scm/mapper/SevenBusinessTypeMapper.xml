@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.SevenBusinessTypeMapper">
+    <select id="selectCreditDataUpchainsNumber" resultType="com.alibaba.fastjson.JSONObject">
+        select
+        (select count(*)
+        from ADM_LICENSE
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as ADM_LICENSE,
+        (select count(*)
+        from ADM_PENALTY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as ADM_PENALTY,
+        (select count(*)
+        from MOD_COMPANY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as MOD_COMPANY,
+        (select count(*)
+        from CREDIT_COMMITMENT_2022
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as CREDIT_COMMITMENT_2022,
+        (select count(*)
+        from T_CREDIT_OBJECTION_APPEAL_APPLY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as T_CREDIT_OBJECTION_APPEAL_APPLY,
+        (select count(*)
+        from T_CREDIT_REPAIR_APPLY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as T_CREDIT_REPAIR_APPLY,
+        (select count(*)
+        from T_CREDIT_REPORT_APPLY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as T_CREDIT_REPORT_APPLY,
+        (select count(*)
+        from T_CREDIT_REVIEW_APPLY
+        where SYNC_DATE like CONCAT(#{syncDate},'%')) as T_CREDIT_REVIEW_APPLY
+    </select>
+    <select id="selectCreditCommitmentAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        CREDIT_COMMITMENT_2022
+    </select>
+    <select id="selectTCreditReviewApplyAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        T_CREDIT_REVIEW_APPLY
+    </select>
+    <select id="selectADMLicenseAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        ADM_LICENSE
+    </select>
+    <select id="selectADMPENALTYAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        ADM_PENALTY
+    </select>
+    <select id="selectTCreditReportApplyAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        T_CREDIT_REPORT_APPLY
+    </select>
+    <select id="selectTCreditRepairApplyAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        T_CREDIT_REPAIR_APPLY
+    </select>
+    <select id="selectTCreditObjectionAppealApplyAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        T_CREDIT_OBJECTION_APPEAL_APPLY
+    </select>
+</mapper>

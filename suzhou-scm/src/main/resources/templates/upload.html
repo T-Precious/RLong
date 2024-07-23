@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>菜鸟教程(runoob.com)</title>
+    <script src="https://cdn.staticfile.org/jquery/1.10.2/jquery.min.js">
+    </script>
+    <script>
+        function upload() {
+            $.ajax({
+                type:'post',
+                url:'/suzhou.scm/upload',
+                cache: false,
+                data: new FormData($("#uploadForm")[0]),
+                processData: false,
+                contentType: false,
+                // headers:{
+                //     "token":"C0USJG636NNOBHUU"
+                // },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("token","C0USJG636NNOBHUU");
+                },
+                success:function(data){
+                    // var result = JSON.parse(data);
+                    alert("status=" + data.status + ", msg=" + data.msg + ", data=" + data.data);
+                },
+                error:function () {
+                    alert("error");
+                }
+            });
+
+            console.log("end");
+        }
+    </script>
+</head>
+<body>
+<h1>文件上传页面</h1>
+<form method="post" enctype="multipart/form-data" id="uploadForm">
+    选择要上传的文件：<input type="file" name="file"><br>
+    <hr>
+    <input type="button" value="提交" onclick="upload()">
+</form>
+
+</body>
+</html>

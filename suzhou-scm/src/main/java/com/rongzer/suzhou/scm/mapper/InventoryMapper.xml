@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.InventoryMapper">
+    <select id="selectInventoryList" resultType="com.rongzer.suzhou.scm.pojo.Inventory">
+         SELECT
+        *,MAIN_ID as mainId
+        FROM
+        inventory
+        WHERE
+        companyId=#{companyId}
+    </select>
+    <select id="selectInventoryByMainId" resultType="com.rongzer.suzhou.scm.pojo.Inventory">
+        SELECT
+        *,MAIN_ID as mainId
+        FROM
+        inventory
+        WHERE
+        companyId=#{companyId} and
+        MAIN_ID LIKE CONCAT('%',#{mainId},'%')
+        limit 20
+    </select>
+    <insert id="addInventory" parameterType="com.rongzer.suzhou.scm.pojo.Inventory">
+        insert into inventory
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            MAIN_ID,
+            <if test="customerNo!=null and customerNo !=''">
+                CUSTOMER_NO,
+            </if>
+            <if test="companyId!=null and companyId !=''">
+            companyId,
+            </if>
+            <if test="companyName!=null and companyName !=''">
+                companyName,
+            </if>
+            <if test="stockType1!=null and stockType1 !=''">
+                stockType1,
+            </if>
+            <if test="stockType2!=null and stockType2 !=''">
+                stockType2,
+            </if>
+            <if test="inventory!=null">
+                inventory,
+            </if>
+            <if test="purchaseVolume!=null">
+                purchaseVolume,
+            </if>
+            <if test="batch!=null and batch !=''">
+                batch,
+            </if>
+            <if test="inputUser!=null and inputUser !=''">
+                inputUser,
+            </if>
+            <if test="inputDate!=null and inputDate !=''">
+                inputDate,
+            </if>
+            <if test="inputTime!=null and inputTime !=''">
+                inputTime,
+            </if>
+            <if test="SYNC_DATE!=null and SYNC_DATE !=''">
+                SYNC_DATE,
+            </if>
+            <if test="updateTime!=null and updateTime !=''">
+                updateTime,
+            </if>
+            <if test="remark!=null and remark !=''">
+                remark,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{mainId},
+            <if test="customerNo!=null and customerNo !=''">
+                #{customerNo},
+            </if>
+            <if test="companyId!=null and companyId !=''">
+                #{companyId},
+            </if>
+            <if test="companyName!=null and companyName !=''">
+                #{companyName},
+            </if>
+            <if test="stockType1!=null and stockType1 !=''">
+                #{stockType1},
+            </if>
+            <if test="stockType2!=null and stockType2 !=''">
+                #{stockType2},
+            </if>
+            <if test="inventory!=null">
+                #{inventory},
+            </if>
+            <if test="purchaseVolume!=null">
+                #{purchaseVolume},
+            </if>
+            <if test="batch!=null and batch !=''">
+                #{batch},
+            </if>
+            <if test="inputUser!=null and inputUser !=''">
+                #{inputUser},
+            </if>
+            <if test="inputDate!=null and inputDate !=''">
+                #{inputDate},
+            </if>
+            <if test="inputTime!=null and inputTime !=''">
+                #{inputTime},
+            </if>
+            <if test="SYNC_DATE!=null and SYNC_DATE !=''">
+                #{SYNC_DATE},
+            </if>
+            <if test="updateTime!=null and updateTime !=''">
+                #{updateTime},
+            </if>
+            <if test="remark!=null and remark !=''">
+                #{remark},
+            </if>
+        </trim>
+    </insert>
+</mapper>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.SerialNumberMapper">
+
+    <select id="selectId" parameterType="java.lang.String" resultType="int">
+        select
+        num
+        from serial_number
+        where type = #{type} and date = #{date,jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insert">
+        insert into serial_number (`type`, `date`, `num`)
+        values (#{type}, #{date}, #{num})
+    </insert>
+
+    <update id="incrementId" parameterType="string">
+        update serial_number
+        set num = num + 1
+        where type = #{type} and date = #{date,jdbcType=VARCHAR}
+    </update>
+</mapper>

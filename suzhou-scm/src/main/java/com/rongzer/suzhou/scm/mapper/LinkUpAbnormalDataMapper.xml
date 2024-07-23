@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.LinkUpAbnormalDataMapper">
+
+    <select id="selectLinkUpAbnormalDataList" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        *
+        FROM
+        LinkUp_Abnormal_Data
+        WHERE
+        TABLE_NAME=#{tableName}
+    </select>
+
+    <select id="getLinkUpAbnormalDataByRowId" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        *
+        FROM
+        LinkUp_Abnormal_Data
+        WHERE
+        ROW_ID=#{rowId}
+    </select>
+
+    <insert id="insertLinkUpAbnormalData" parameterType="com.rongzer.suzhou.scm.pojo.LinkUpAbnormalData">
+        insert into LinkUp_Abnormal_Data
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="rowId!=null and rowId !=''">
+                ROW_ID,
+            </if>
+            <if test="tableName!=null and tableName !=''">
+                TABLE_NAME,
+            </if>
+            <if test="tableData!=null and tableData !=''">
+                TABLE_DATA,
+            </if>
+            <if test="typeIsNew!=null and typeIsNew !=''">
+                TYPE_ISNEW,
+            </if>
+            <if test="exceptionMessage!=null and exceptionMessage !=''">
+                EXCEPTION_MESSAGE,
+            </if>
+            <if test="createTime!=null and createTime !=''">
+                CREATE_TIME,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="rowId!=null and rowId !=''">
+                #{rowId},
+            </if>
+            <if test="tableName!=null and tableName !=''">
+                #{tableName},
+            </if>
+            <if test="tableData!=null and tableData !=''">
+                #{tableData},
+            </if>
+            <if test="typeIsNew!=null and typeIsNew !=''">
+                #{typeIsNew},
+            </if>
+            <if test="exceptionMessage!=null and exceptionMessage !=''">
+                #{exceptionMessage},
+            </if>
+            <if test="createTime!=null and createTime !=''">
+                #{createTime},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

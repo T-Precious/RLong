@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.ModCompanyMapper">
+    <select id="selectModCompanyByScoreLevel" resultType="com.alibaba.fastjson.JSONObject">
+        ( SELECT '未评分' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE ISNULL(ASSESS_SCORE) OR ASSESS_SCORE = '' ) UNION
+        ( SELECT '300分以下' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE (ASSESS_SCORE != '' AND ASSESS_SCORE IS NOT NULL) and ASSESS_SCORE BETWEEN 0 AND 299 ) UNION
+        ( SELECT '300到399分' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE ASSESS_SCORE BETWEEN 300 AND 399 ) UNION
+        ( SELECT '400到599分' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE ASSESS_SCORE BETWEEN 400 AND 599 ) UNION
+        ( SELECT '600到799分' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE ASSESS_SCORE BETWEEN 600 AND 799 ) UNION
+        ( SELECT '800到1000分' AS fracProp, count(*) AS num FROM MOD_COMPANY WHERE ASSESS_SCORE BETWEEN 800 AND 1000 );
+    </select>
+    <select id="selectModCompanyAllNum" resultType="Long">
+        select
+        count(*)
+        FROM
+        MOD_COMPANY
+    </select>
+</mapper>

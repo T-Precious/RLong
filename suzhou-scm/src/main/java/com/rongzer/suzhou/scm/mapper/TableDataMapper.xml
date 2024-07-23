@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.TableDataMapper">
+
+  <select id="selectTxIdByIdKey" parameterType="java.lang.String" resultType="java.lang.String">
+    SELECT txId from ${tableName} where idKey = #{idKey}
+  </select>
+
+  <select id="countByTxId" parameterType="java.lang.String" resultType="java.lang.Integer">
+    SELECT count(1) from ${tableName} where txId = #{txId}
+  </select>
+
+  <select id="countByPrimaryKey" resultType="java.lang.Integer">
+    SELECT count(1) from ${tableName}
+    <where>
+      <foreach collection="primaryKeys" item="key">
+        and ${key.column} = #{key.value}
+      </foreach>
+    </where>
+  </select>
+
+  <insert id="batchInsert">
+    <foreach collection="tableInfo" item="emp" separator=";">
+      insert into ${emp.tableName}(${emp.keyStr})
+      values(${emp.valueStr})
+    </foreach>
+  </insert>
+
+  <update id="batchUpdate">
+    <foreach collection="tableInfo" item="emp" separator=";">
+      UPDATE ${emp.tableName} SET ${emp.updateStr} WHERE idKey = #{emp.idKey}
+    </foreach>
+  </update>
+
+  <insert id="batchReplaceInto">
+    replace into ${data.tableName}(${data.keyStr})
+    values
+    <foreach collection="data.valueList" item="value" separator=",">
+      ${value}
+    </foreach>
+  </insert>
+  <insert id="singleReplaceInto">
+    replace into ${data.tableName}(${data.keyStr})
+    values ${data.valueStr}
+  </insert>
+</mapper>

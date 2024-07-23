@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.DepartmentChainNumMapper">
+    <select id="getAllDepartments" resultType="string">
+        select department_full_name from Department_tables
+    </select>
+    <select id="countByDateType" resultType="map">
+     select department_full_name DEPARTMENT_NAME,sum(upchain_number) NUM from Department_Chain_Num
+      where  create_date like CONCAT(#{createDateStr},'%')
+     group by department_full_name
+        order by NUM desc
+    </select>
+    <insert id="gatherAdm">
+        INSERT INTO Department_Chain_Num ( department_full_name, department_abbreviation, upchain_number, create_date ) SELECT
+            a.COLLECTION_DEPARTMENT,
+            b.department_abbreviation,
+            sum( a.num ) num,
+            #{syncDate}
+            FROM
+                (
+                SELECT
+                    COLLECTION_DEPARTMENT,
+                    count(*) num
+                FROM
+                    `ADM_LICENSE`
+                WHERE
+                     SYNC_DATE = #{syncDate}
+                GROUP BY
+                    COLLECTION_DEPARTMENT UNION ALL
+                SELECT
+                    COLLECTION_DEPARTMENT,
+                    count(*) num
+                FROM
+                    `ADM_PENALTY`
+                WHERE
+                     SYNC_DATE = #{syncDate}
+                GROUP BY
+                    COLLECTION_DEPARTMENT
+                ) a
+                LEFT JOIN Department_tables b ON a.COLLECTION_DEPARTMENT = b.department_full_name
+            GROUP BY
+                a.COLLECTION_DEPARTMENT,
+                b.department_abbreviation
+    </insert>
+
+    <select id="hasGarherByCreateDate" resultType="java.lang.Integer">
+        select count(*) from Department_Chain_Num where create_date = CURDATE()
+    </select>
+
+    <delete id="deleteHistoryGather">
+        delete from Department_Chain_Num where create_date = CURDATE()
+    </delete>
+
+
+
+
+    <select id="getModCompanyPage" resultType="com.alibaba.fastjson.JSONObject">
+        select * from MOD_COMPANY
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                `NAME` like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and ASSESS_UPDATE_DATE >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and ASSESS_UPDATE_DATE <= #{endDate}
+                 ]]>
+            </if>
+        </where>
+    </select>
+    <select id="getReportApplyPage" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        APPLY_NUM,
+        `NAME`,
+        USCC,
+        MANAGER_USERNAME,
+        APPLY_TIME,
+       PARK_CREDIT_ID,
+        PROVINCES_CITY_ID
+--         IF
+--         ( isnull( PARK_CREDIT_ID ), '', CASE STATUS
+--         WHEN 1 THEN '待审核'
+--         WHEN 2 THEN '待受理'
+--         WHEN 3 THEN '待下发'
+--         WHEN 4 THEN '待打印'
+--         WHEN 5 THEN '已办结'
+--         WHEN 6 THEN '已驳回'
+--         ELSE '' END ) PARK_STATUS,
+--         IF
+--         ( isnull( PROVINCES_CITY_ID ), '', CASE STATUS
+--         WHEN 1 THEN '待审核'
+--         WHEN 2 THEN '待受理'
+--         WHEN 3 THEN '待下发'
+--         WHEN 4 THEN '待打印'
+--         WHEN 5 THEN '已办结'
+--         WHEN 6 THEN '已驳回'
+--         ELSE '' END ) PROVINCE_CITY_STATUS
+        FROM
+        T_CREDIT_REPORT_APPLY
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                `NAME` like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and APPLY_TIME >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and APPLY_TIME <= #{endDate}
+                 ]]>
+            </if>
+        </where>
+    </select>
+    <select id="getReviewApplyListPage" resultType="com.alibaba.fastjson.JSONObject">
+        select * from T_CREDIT_REVIEW_APPLY_LIST
+        where REVIEW_ID=#{reviewId}
+    </select>
+    <select id="getReviewApplyPage" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+            a.ID,
+            a.ROWID,
+            a.APPLY_NUM,
+            a.APPLY_USERNAME,
+            a.APPLY_MATTER,
+            a.APPLY_UNIT,
+            a.PARK_ID,
+            a.PROVINCE_CITY_ID,
+            a.ADM_COUNTERPART_CAT,
+            a.APPLY_TIME
+        FROM
+            T_CREDIT_REVIEW_APPLY a
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                a.APPLY_UNIT like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and a.APPLY_TIME >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and a.APPLY_TIME <= #{endDate}
+                 ]]>
+            </if>
+        </where>
+    </select>
+    <select id="getCommitmentPage" resultType="com.alibaba.fastjson.JSONObject">
+        select PROMISOR_NAME,PROMISOR_TYPE,PROMISOR_NUM,COMMITMENT_TYPE,COMMIT_DATE,ACCEPTANCE_UNIT,COLLECTION_DEPARTMENT,PERFORMANCE_STATUS
+        from CREDIT_COMMITMENT_2022
+<!--        SELECT-->
+<!--        DEAL_DEPT_NAME,-->
+<!--            MATTER_NAME,-->
+<!--            count(*) APPLY_NUM,-->
+<!--            sum( CASE STATUS WHEN 2 THEN 1 ELSE 0 END ) FINISH_NUM,-->
+<!--            sum( CASE STATUS WHEN 1 THEN 1 ELSE 0 END ) WAIT_NUM,-->
+<!--            sum( CASE STATUS WHEN 3 THEN 1 ELSE 0 END ) REJECT_NUM-->
+<!--        FROM-->
+<!--            CREDIT_COMMITMENT_2022-->
+        <where>
+            <if test="enterpriseParam.departments != null and enterpriseParam.departments.length>0">
+                and COLLECTION_DEPARTMENT in
+                <foreach collection="enterpriseParam.departments" item="department" separator="," open="(" close=")">
+                    #{department}
+                </foreach>
+            </if>
+            <if test="enterpriseParam.enterpriseName != null and enterpriseParam.enterpriseName!=''">
+                and PROMISOR_NAME like concat('%',#{enterpriseParam.enterpriseName},'%')
+            </if>
+            <if test="enterpriseParam.startDate != null and enterpriseParam.startDate != ''">
+                and COMMIT_DATE >= #{enterpriseParam.startDate}
+            </if>
+            <if test="enterpriseParam.endDate != null and enterpriseParam.endDate != ''">
+                <![CDATA[
+                 and COMMIT_DATE <= #{enterpriseParam.endDate}
+                 ]]>
+            </if>
+        </where>
+        order by COMMIT_DATE
+    </select>
+    <select id="getRepairApplyPage" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        a.ROWID,
+        a.APPLY_NUM,
+        a.NAME,
+        a.USCC,
+        a.COLLECTION_DEPARTMENT,
+        a.APPLY_TIME,
+        CASE b.APPLY_STATUS
+        WHEN 1 THEN '信用办--待审核'
+        WHEN 2 THEN '局办--待审核'
+        WHEN 3 THEN '已驳回'
+        WHEN 4 THEN '公示中'
+        WHEN 5 THEN '已终止'
+        WHEN 6 THEN '已修复'
+        ELSE '' END CURRENT_STATUS,
+        DATE_ADD(a.CREATE_TIME,INTERVAL 10 DAY) CREATE_TIME
+        FROM
+        T_CREDIT_REPAIR_APPLY a
+        left join (select REPAIR_ID,CURRENT_STATUS,APPLY_STATUS from T_CREDIT_REPAIR_STATUS
+        where CURRENT_STATUS='1') b on a.ID = b.REPAIR_ID
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                and a.NAME like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and a.APPLY_TIME >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and a.APPLY_TIME <= #{endDate}
+                 ]]>
+            </if>
+            <if test="departments != null and departments.length>0">
+                and a.COLLECTION_DEPARTMENT in
+                <foreach collection="departments" item="department" separator="," open="(" close=")">
+                    #{department}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getObjectionAppealApplyPage" resultType="com.alibaba.fastjson.JSONObject">
+        select a.ROWID,a.APPLY_NUM,a.NAME,a.USCC,a.CONTACT_PERSON,a.APPLY_TIME,a.APPLY_DEPT,a.CREDIT_AUDIT_TIME,
+         CASE STATUS
+            WHEN 1 THEN '待审核'
+            WHEN 2 THEN '待受理'
+            WHEN 3 THEN '待下发'
+            WHEN 4 THEN '待打印'
+            WHEN 5 THEN '已办结'
+            WHEN 6 THEN '已驳回'
+            ELSE '' END  STATUS
+         from T_CREDIT_OBJECTION_APPEAL_APPLY a
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                and a.NAME like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and a.APPLY_TIME >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and a.APPLY_TIME <= #{endDate}
+                 ]]>
+            </if>
+            <if test="departments != null and departments.length>0">
+               and a.COLLECTION_DEPARTMENT in
+                <foreach collection="departments" item="department" separator="," open="(" close=")">
+                    #{department}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getAdmLicensePage" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        a.ADM_COUNTERPART,
+        a.ADM_COUNTERPART_CAT,
+        a.CERT_NUM,
+        a.USCC,
+        a.SOURCE_RECORD_ID,
+        a.ADM_LIC_DECIDE_NUM,
+        a.LICENSE_DEC_DATE,
+        a.SOURCE_CREATE_DATE,
+        a.LICENSING_AUTH,
+        a.COLLECTION_DEPARTMENT
+        FROM
+        ADM_LICENSE a
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                and a.ADM_COUNTERPART like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and a.LICENSE_DEC_DATE >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and a.LICENSE_DEC_DATE <= #{endDate}
+                 ]]>
+            </if>
+            <if test="departments != null and departments.length>0">
+                and a.COLLECTION_DEPARTMENT in
+                <foreach collection="departments" item="department" separator="," open="(" close=")">
+                    #{department}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    <select id="getDataRecordByID" resultType="com.alibaba.fastjson.JSONObject">
+        select * from DATA_RECORD_ID_OBTAIN
+        where RECORD_ID=#{sourceRecordId}
+    </select>
+    <select id="getAdmPenaltyPage" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        a.ADM_COUNTERPART,
+        a.ADM_COUNTERPART_CAT,
+        a.CERT_NUM,
+        a.USCC,
+        a.SOURCE_RECORD_ID,
+        a.ADM_PENALTY_DECIDE_NUM,
+        a.PUNISHMENT_DEC_DATE,
+        a.SOURCE_CREATE_DATE,
+        a.PUNISHMENT_AUTH,
+        a.COLLECTION_DEPARTMENT
+        FROM
+        ADM_PENALTY a
+        <where>
+            <if test="enterpriseName != null and enterpriseName!=''">
+                and a.ADM_COUNTERPART like concat('%',#{enterpriseName},'%')
+            </if>
+            <if test="startDate != null and startDate != ''">
+                and a.PUNISHMENT_DEC_DATE >= #{startDate}
+            </if>
+            <if test="endDate != null and endDate != ''">
+                <![CDATA[
+                 and a.PUNISHMENT_DEC_DATE <= #{endDate}
+                 ]]>
+            </if>
+            <if test="departments != null and departments.length>0">
+                and a.COLLECTION_DEPARTMENT in
+                <foreach collection="departments" item="department" separator="," open="(" close=")">
+                    #{department}
+                </foreach>
+            </if>
+        </where>
+    </select>
+
+</mapper>

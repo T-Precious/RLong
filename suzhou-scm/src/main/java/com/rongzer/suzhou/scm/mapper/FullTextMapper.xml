@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.FullTextMapper">
+
+    <select id="fuzzySearchSalesContractByName" parameterType="java.lang.String" resultType="com.rongzer.suzhou.scm.pojo.SalesContract">
+        SELECT
+            *
+        FROM
+            salescontract
+        WHERE
+            MATCH ( contractName ) against ( #{string} IN NATURAL LANGUAGE MODE )
+            LIMIT 5
+    </select>
+
+
+    <select id="fuzzySearch" resultType="com.alibaba.fastjson.JSONObject">
+        SELECT
+        *
+        FROM
+        ${tableName}
+        WHERE
+        MATCH ( ${columnName} ) against ( #{string} IN NATURAL LANGUAGE MODE )
+        LIMIT 5
+    </select>
+
+</mapper>

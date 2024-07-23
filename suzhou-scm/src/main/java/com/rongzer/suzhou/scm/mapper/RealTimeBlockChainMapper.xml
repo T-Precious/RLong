@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.RealTimeBlockChainMapper">
+    <select id="selectUpchainsNumber" resultType="Long">
+        select
+        upchain_number
+        FROM
+        RealTime_Blockchain_OnChain
+        where upchain_type=#{upchainType}
+        order by create_date desc limit 1
+    </select>
+    <select id="selectCreditDataUpchainsNumber" resultType="Long">
+        select
+        SUM(upchain_number)
+        FROM
+        RealTime_Blockchain_OnChain
+        where create_date like CONCAT(#{createDate},'%')
+    </select>
+    <select id="selectRealTimeDataUpchainsNumber" resultType="Long">
+        select
+        SUM(upchain_number)
+        FROM
+        RealTime_Blockchain_OnChain
+        where create_date=#{createDate}
+    </select>
+    <insert id="insertBlockChainOnChain" parameterType="com.rongzer.suzhou.scm.pojo.RealTimeBlockChain">
+          insert into RealTime_Blockchain_OnChain
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="upchainType!=null">
+                upchain_type,
+            </if>
+            <if test="upchainNumber!=null">
+                upchain_number,
+            </if>
+            <if test="createDate!=null">
+                create_date,
+            </if>
+            <if test="createDateTime!=null">
+                create_datatime,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="upchainType!=null">
+                #{upchainType},
+            </if>
+            <if test="upchainNumber!=null">
+                #{upchainNumber},
+            </if>
+            <if test="createDate!=null">
+                #{createDate},
+            </if>
+            <if test="createDateTime!=null">
+                #{createDateTime},
+            </if>
+        </trim>
+        on duplicate key update create_date=#{createDate}
+    </insert>
+</mapper>

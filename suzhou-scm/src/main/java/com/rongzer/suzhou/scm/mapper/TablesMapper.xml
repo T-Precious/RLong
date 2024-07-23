@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.TablesMapper">
+
+  <select id="findTableCountByTableName" parameterType="java.lang.String" resultType="java.lang.Integer">
+   SELECT count(1) FROM information_schema.tables
+   where table_name = #{tableName}
+   and table_schema = (select database())
+  </select>
+
+  <select id="selectColumnsByTableName" parameterType="java.lang.String" resultType="java.lang.String">
+    SELECT COLUMN_NAME from information_schema.COLUMNS
+    where table_name = #{tableName}
+    and table_schema = (select database())
+  </select>
+   <select id="selectTableDataByIndex" parameterType="Integer" resultType="com.alibaba.fastjson.JSONObject">
+       select * from ${tableName}
+       <if test="primaryValues!=null and indexName!=null">
+           where ${indexName} in (
+           <foreach collection="primaryValues" item="value" separator=",">
+               ${value}
+           </foreach>
+           )
+       </if>
+       LIMIT #{page,jdbcType=INTEGER} , #{pageSize,jdbcType=INTEGER} ;
+   </select>
+    <select id="selectSoleTableDataByIndex" parameterType="java.lang.String" resultType="com.alibaba.fastjson.JSONObject">
+        select * from ${tableName}
+        where ${indexName} = #{indexValue,jdbcType=VARCHAR}
+        <if test="sortField!=null and sortField!=''">
+            ORDER BY ${sortField} DESC
+        </if>
+    </select>
+    <delete id="deleteTableDataByIndex" parameterType="java.lang.String">
+        DELETE from ${tableName}
+        where ${indexName} in (
+        <foreach collection="primaryValues" item="value" separator=",">
+            #{value,jdbcType=VARCHAR}
+        </foreach>
+        )
+    </delete>
+    <update id="createModelTable">
+        CREATE TABLE ${tableName} (
+          <foreach collection="columns" item="column">
+            ${column.columnName} ${column.columnType} ${column.columnNull} COMMENT #{column.columnComment},
+          </foreach>
+
+        `txId` varchar(80) DEFAULT NULL,
+        `txTime` varchar(20) DEFAULT NULL,
+        `idKey` varchar(100) DEFAULT NULL,
+
+          PRIMARY KEY (
+            <foreach collection="primaryKeys" item="key" separator=",">
+                ${key}
+            </foreach>
+          )
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT=#{tableDesc}
+    </update>
+
+</mapper>

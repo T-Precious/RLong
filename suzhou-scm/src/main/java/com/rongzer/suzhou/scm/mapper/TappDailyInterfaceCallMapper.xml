@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.rongzer.suzhou.scm.dao.TappDailyInterfaceCallMapper">
+    <select id="selectTappDailyInterfaceCallAll" resultType="Long">
+        select sum(CALL_NO) from T_APP_DAILY_INTERFACE_CALL
+    </select>
+    <select id="selectTappDailyInterfaceCallTotal" resultType="Long">
+        select sum(CALL_NO) from T_APP_DAILY_INTERFACE_CALL
+        WHERE CALL_DATE like CONCAT(#{callDate},'%')
+    </select>
+    <select id="selectTappDailyInterfaceCallDptMax" resultType="com.alibaba.fastjson.JSONObject">
+       select DEPARTMENT,sum(CALL_NO) as dptNum
+        from T_APP_DAILY_INTERFACE_CALL
+        WHERE CALL_DATE like CONCAT(#{callDate},'%')
+        GROUP BY DEPARTMENT
+        ORDER BY dptNum desc
+        LIMIT 1
+    </select>
+    <select id="selectTappDailyInterfaceCallMax" resultType="com.alibaba.fastjson.JSONObject">
+        select BUSINESS_SENCE,sum(CALL_NO) as sumCallNo
+        from T_APP_DAILY_INTERFACE_CALL
+        WHERE CALL_DATE like CONCAT(#{callDate},'%')
+        GROUP BY BUSINESS_SENCE
+        ORDER BY sumCallNo DESC
+        LIMIT 1
+    </select>
+    <select id="selectTappDailyInterfaceCallMin" resultType="com.alibaba.fastjson.JSONObject">
+        select BUSINESS_SENCE,sum(CALL_NO) as sumCallNo
+        from T_APP_DAILY_INTERFACE_CALL
+        WHERE CALL_DATE like CONCAT(#{callDate},'%')
+        GROUP BY BUSINESS_SENCE
+        ORDER BY sumCallNo
+        LIMIT 1
+    </select>
+    <select id="selectAllTappDailyInterfaceCall" resultType="com.alibaba.fastjson.JSONObject">
+       select T1.BUSINESS_SENCE,T1.sumCallNo,(@rownum:=@rownum+1) as rownum
+        from
+        (select BUSINESS_SENCE,sum(CALL_NO) as sumCallNo
+        from T_APP_DAILY_INTERFACE_CALL
+        group by BUSINESS_SENCE
+        ORDER BY sumCallNo DESC) as T1 ,(select @rownum:=0) as R
+    </select>
+    <select id="selectDepartmentTappDailyInterface" resultType="com.alibaba.fastjson.JSONObject">
+        select T1.DEPARTMENT,T1.sumCallNo,(@rownum:=@rownum+1) as rownum
+        from
+        (select DEPARTMENT,sum(CALL_NO) as sumCallNo
+        from T_APP_DAILY_INTERFACE_CALL
+        group by DEPARTMENT
+        ORDER BY sumCallNo DESC) as T1 ,(select @rownum:=0) as R
+    </select>
+    <select id="selectApplicationScenarioTappDailyInterface" resultType="com.alibaba.fastjson.JSONObject">
+        select BUSINESS_SENCE,sum(CALL_NO) as sumCallNo
+        from T_APP_DAILY_INTERFACE_CALL
+        WHERE CALL_DATE like CONCAT(#{callDate},'%')
+        group by BUSINESS_SENCE
+    </select>
+</mapper>
